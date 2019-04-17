@@ -7,28 +7,33 @@ OK = 0
 NG = 0
 CASE = 0
 
-LOOT_TABLE_JSON_DIR = "./playground/loot_tables/"
+LOOT_TABLE_JSON_DIR = "./playground/data/loot_manager/loot_tables/"
 LOOT_TABLE_SCHEMA = "./java/data/loot_table.json"
 
-def main():
-  # Loottable チェック
-  valid_check(LOOT_TABLE_SCHEMA, LOOT_TABLE_JSON_DIR)
-# 
+ADVANCEMENT_JSON_DIR = "./playground/data/advancement_manager/advancements/"
+ADVANCEMENT_SCHEMA = "./java/data/advancement.json"
 
-def valid_check(schemaFile, dataDir):
+MCMETA_JSON_DIR = "./playground/"
+MCMETA_SCHEMA = "./java/data/pack.mcmeta.json"
+
+def valid_check(schemaFile, dataDir,TestName):
   schema = json.load(open(schemaFile, 'r'))
 
-  for pathname, dirnames, filenames in os.walk(dataDir):
+  for pathname, dirnames, filenames in os.walk(dataDir.replace('/', os.sep)):
     global OK
     global NG
     global CASE
+    if(TestName == "pack.mcmeta"):
+      extension = ".mcmeta"
+    else:
+      extension = ".json"
     for datafile in filenames:
         if datafile.endswith('.json'):
           try:
             if(datafile != None):
               CASE += 1
-              data = json.load(open(dataDir + datafile, 'r'))
-              print ("Check: {} -> {}").format(schemaFile, dataDir + datafile)
+              data = json.load(open(os.path.join(pathname, datafile), 'r'))
+              print ("[{} - {}] Test: {}").format(TestName,CASE, datafile)
               result = jsonschema.validate(data, schema)
               if result == None:
                 OK += 1
@@ -40,8 +45,19 @@ def valid_check(schemaFile, dataDir):
           finally: print("")
         
 if __name__=='__main__':
-    main()
+    valid_check(LOOT_TABLE_SCHEMA, LOOT_TABLE_JSON_DIR,"Loottable")
     print("Case: {0} - OK: {1} / NG: {2}").format(CASE, OK, NG)
+
+    print("")
+    print("* ------ *")
+    print("")
+    valid_check(ADVANCEMENT_SCHEMA, ADVANCEMENT_JSON_DIR,"advancement")
+    print("Case: {0} - OK: {1} / NG: {2}").format(CASE, OK, NG)
+
+    print("")
+    print("* ------ *")
+    print("")
+
     if(CASE == OK + NG):
       if(CASE == OK): exit(0)
       else: exit(1)
