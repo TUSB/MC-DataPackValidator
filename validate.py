@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
 import json
@@ -28,7 +29,7 @@ def valid_check(schemaFile, dataDir,TestName):
     else:
       extension = ".json"
     for datafile in filenames:
-        if datafile.endswith('.json'):
+        if datafile.endswith(extension):
           try:
             if(datafile != None):
               CASE += 1
@@ -62,5 +63,4 @@ if __name__=='__main__':
       if(CASE == OK): exit(0)
       else: exit(1)
 #TODO 各種リソース類のValidate用の呼び出しMethodを分けて作成する
-#TODO Json読み込み用Method作る
 #TODO GitHubURL参照できるようにしとく
