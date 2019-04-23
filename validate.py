@@ -1,24 +1,30 @@
 # -*- coding: utf-8 -*-
 import os
+import urllib2
 import json
+from json.decoder import WHITESPACE
 import jsonschema
 
 OK = 0
 NG = 0
 CASE = 0
 
-LOOT_TABLE_JSON_DIR = "./playground/data/loot_manager/loot_tables/"
-LOOT_TABLE_SCHEMA = "./java/data/loot_table.json"
+LOOT_TABLE_JSON_DIR = "./playground/TheUnusualSkyBlock/data/loot_manager/loot_tables/"
+LOOT_TABLE_SCHEMA = "https://raw.githubusercontent.com/CommandBlockLogic/minecraft-json-schemas/master/java/data/loot_table.json"
 
-ADVANCEMENT_JSON_DIR = "./playground/data/advancement_manager/advancements/"
-ADVANCEMENT_SCHEMA = "./java/data/advancement.json"
+ADVANCEMENT_JSON_DIR = "./playground/TheUnusualSkyBlock/data/advancement_manager/"
+ADVANCEMENT_SCHEMA = "https://raw.githubusercontent.com/CommandBlockLogic/minecraft-json-schemas/master/java/data/advancement.json"
 
-MCMETA_JSON_DIR = "./playground/"
-MCMETA_SCHEMA = "./java/data/pack.mcmeta.json"
+MCMETA_JSON_DIR = "./TheUnusualSkyBlock/playground/"
+MCMETA_SCHEMA = "https://raw.githubusercontent.com/CommandBlockLogic/minecraft-json-schemas/master/java/data/pack.mcmeta.json"
 
 def valid_check(schemaFile, dataDir,TestName):
-  schema = json.load(open(schemaFile, 'r'))
-
+  try:
+    r = urllib2.urlopen(schemaFile)
+    schema = json.loads(r.read())
+    # print (schema)
+  finally:
+      r.close()
   for pathname, dirnames, filenames in os.walk(dataDir.replace('/', os.sep)):
     global OK
     global NG
@@ -28,11 +34,15 @@ def valid_check(schemaFile, dataDir,TestName):
     else:
       extension = ".json"
     for datafile in filenames:
-        if datafile.endswith('.json'):
+        if datafile.endswith(extension):
           try:
             if(datafile != None):
               CASE += 1
-              data = json.load(open(os.path.join(pathname, datafile), 'r'))
+              with open(os.path.join(pathname, datafile)) as fh:
+                j = json.loads(fh.read(), "utf-8")
+                d = json.dumps(j, ensure_ascii=False)
+                data = json.loads(d)
+                # print (data)
               print ("[{} - {}] Test: {}").format(TestName,CASE, datafile)
               result = jsonschema.validate(data, schema)
               if result == None:
@@ -42,6 +52,8 @@ def valid_check(schemaFile, dataDir,TestName):
                 NG += 1
                 print('Invalid JSON - {0}'.format(e.message))
                 print ("{} NG".format(datafile))
+          except Exception as e:
+              print('ERROR - {0}'.format(e))
           finally: print("")
         
 if __name__=='__main__':
@@ -63,4 +75,4 @@ if __name__=='__main__':
       else: exit(1)
 #TODO 各種リソース類のValidate用の呼び出しMethodを分けて作成する
 #TODO Json読み込み用Method作る
-#TODO GitHubURL参照できるようにしとく
+#TODO レシピ
