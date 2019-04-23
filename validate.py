@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
 import urllib2
@@ -74,5 +75,5 @@ if __name__=='__main__':
       if(CASE == OK): exit(0)
       else: exit(1)
 #TODO 各種リソース類のValidate用の呼び出しMethodを分けて作成する
-#TODO Json読み込み用Method作る
 #TODO レシピ
+#TODO Json読み込み用Method作る
